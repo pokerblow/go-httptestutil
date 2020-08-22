@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"github.com/gin-gonic/gin"
 	"io"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -14,6 +15,9 @@ type Router struct {
 }
 
 func NewRouter(router *gin.Engine) *Router {
+	if router == nil {
+		log.Fatal("router parameter can't be nil")
+	}
 	return &Router{router: router}
 }
 

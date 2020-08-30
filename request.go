@@ -2,6 +2,7 @@ package httptestutil
 
 import (
 	"bytes"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"io"
 	"log"
@@ -10,25 +11,43 @@ import (
 	"testing"
 )
 
-type Router struct {
-	router *gin.Engine
+type TestRouter struct {
+	router       *gin.Engine
+	basePath     string
+	extraHeaders map[string]string
 }
 
-func NewRouter(router *gin.Engine) *Router {
+func (r *TestRouter) BasePath(basePath string) *TestRouter {
+	r.basePath = basePath
+	return r
+}
+
+// Adds extra headers to the requests
+func (r *TestRouter) Headers(headers map[string]string) *TestRouter {
+	r.extraHeaders = headers
+	return r
+}
+
+func NewRouter(router *gin.Engine) *TestRouter {
 	if router == nil {
 		log.Fatal("router parameter can't be nil")
 	}
-	return &Router{router: router}
+	return &TestRouter{router: router}
 }
 
-func (r *Router) Request(t *testing.T, method, path string, bodyJson *string, headers map[string]string) *httptest.ResponseRecorder {
-	req, err := http.NewRequest(method, path, body(bodyJson))
+func (r *TestRouter) Request(t *testing.T, method, path string, bodyJson *string, headers map[string]string) *httptest.ResponseRecorder {
+	fullPath := fmt.Sprintf("%s%s", r.basePath, path)
+	req, err := http.NewRequest(method, fullPath, body(bodyJson))
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	for header, v := range headers {
-		req.Header.Set(header, v)
+	for headerName, v := range r.extraHeaders {
+		req.Header.Set(headerName, v)
+	}
+
+	for headerName, v := range headers {
+		req.Header.Set(headerName, v)
 	}
 
 	rr := httptest.NewRecorder()

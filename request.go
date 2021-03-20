@@ -55,6 +55,26 @@ func (r *TestRouter) Request(t *testing.T, method, path string, bodyJson *string
 	return rr
 }
 
+func (r *TestRouter) GET(t *testing.T, path string, headers map[string]string) *httptest.ResponseRecorder {
+	return r.Request(t, http.MethodGet, path, nil, headers)
+}
+
+func (r *TestRouter) POST(t *testing.T, path string, bodyJson string, headers map[string]string) *httptest.ResponseRecorder {
+	return r.Request(t, http.MethodPost, path, &bodyJson, headers)
+}
+
+func (r *TestRouter) PUT(t *testing.T, path string, bodyJson string, headers map[string]string) *httptest.ResponseRecorder {
+	return r.Request(t, http.MethodPut, path, &bodyJson, headers)
+}
+
+func (r *TestRouter) PATCH(t *testing.T, path string, bodyJson string, headers map[string]string) *httptest.ResponseRecorder {
+	return r.Request(t, http.MethodPatch, path, &bodyJson, headers)
+}
+
+func (r *TestRouter) DELETE(t *testing.T, path string, headers map[string]string) *httptest.ResponseRecorder {
+	return r.Request(t, http.MethodPut, path, nil, headers)
+}
+
 func body(json *string) io.Reader {
 	if json == nil {
 		return nil
